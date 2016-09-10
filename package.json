@@ -1,0 +1,14 @@
+{
+  "name": "express-webid-auth",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "Jacopo Scazzosi <me@jacoscaz.com>",
+  "license": "MIT",
+  "dependencies": {
+    "rdfstore": "^0.9.17"
+  }
+}

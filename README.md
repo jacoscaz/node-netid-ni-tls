@@ -2,14 +2,13 @@
 Express-WebID-Auth
 ==================
 
-Express middleware for fingerprint-based WebID(-ish) authentication.
+Express middleware for fingerprint-based WebID authentication.
 
 Why fingerprints?
 -----------------
 
 The current WebID specs mandate the use of RSA as they focus on modulus
 and exponent comparison. I'd like something more flexible.
-
 
 RDFa example
 ------------
@@ -25,9 +24,8 @@ RDFa example
 Todo
 ----
 
-1. Separate middleware from authentication
-2. Add caching to middleware (through adaptors)
-3. Consider promisification?
-4. Consider tracking the certificate of the server hosting the identity
-5. Better README
-6. Publish on NPM
+1. Add caching to middleware (through adaptors)
+2. Complete error handling of all error cases
+3. Custom dictionary? Extend `cert`?
+3. Better README
+4. Publish on NPM

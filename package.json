@@ -10,14 +10,17 @@
   "license": "MIT",
   "dependencies": {
     "async": "^2.0.1",
+    "bluebird": "^3.4.6",
     "debug": "^2.2.0",
     "erratum": "^1.0.0",
     "jsonld": "^0.4.11",
     "jsonld-rdfa-parser": "^1.5.1",
-    "lodash.find": "^4.6.0",
+    "lodash.merge": "^4.6.0",
+    "node-cache": "^3.2.1",
     "rdfstore": "^0.9.17",
     "request": "^2.74.0",
-    "shortid": "^2.2.6"
+    "shortid": "^2.2.6",
+    "underscore": "^1.8.3"
   },
   "devDependencies": {
     "express": "^4.14.0"

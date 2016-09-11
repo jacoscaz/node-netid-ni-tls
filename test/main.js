@@ -14,7 +14,8 @@ var app = express();
 app.use('/', auth());
 
 app.use('/', function(req, res, next) {
-  res.send({webid: req.webid});
+  res.set('Content-Type', 'text/plain');
+  res.send(JSON.stringify(req.auth, null, 4));
 });
 
 var opts = {

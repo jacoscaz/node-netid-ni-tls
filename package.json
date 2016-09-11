@@ -9,6 +9,17 @@
   "author": "Jacopo Scazzosi <me@jacoscaz.com>",
   "license": "MIT",
   "dependencies": {
-    "rdfstore": "^0.9.17"
+    "async": "^2.0.1",
+    "debug": "^2.2.0",
+    "erratum": "^1.0.0",
+    "jsonld": "^0.4.11",
+    "jsonld-rdfa-parser": "^1.5.1",
+    "lodash.find": "^4.6.0",
+    "rdfstore": "^0.9.17",
+    "request": "^2.74.0",
+    "shortid": "^2.2.6"
+  },
+  "devDependencies": {
+    "express": "^4.14.0"
   }
 }

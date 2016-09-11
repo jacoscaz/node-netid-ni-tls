@@ -21,3 +21,13 @@ RDFa example
             <div property="cert:hex" content="DB:C1:9F:F6:0F:4C:E8:89:1A:E1:24:1E:12:1E:CB:40:D9:4A:52:B8"></div>
         </div>
     </div>
+
+Todo
+----
+
+1. Separate middleware from authentication
+2. Add caching to middleware (through adaptors)
+3. Consider promisification?
+4. Consider tracking the certificate of the server hosting the identity
+5. Better README
+6. Publish on NPM

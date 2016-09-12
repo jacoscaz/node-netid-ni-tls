@@ -24,8 +24,7 @@ RDFa example
 Todo
 ----
 
-1. Add caching to middleware (through adaptors)
-2. Complete error handling of all error cases
-3. Custom dictionary? Extend `cert`?
+1. Complete error handling of cases
+2. Custom dictionary? Extend `cert`?
 3. Better README
 4. Publish on NPM

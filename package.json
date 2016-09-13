@@ -17,6 +17,8 @@
     "jsonld-rdfa-parser": "^1.5.1",
     "lodash.merge": "^4.6.0",
     "node-cache": "^3.2.1",
+    "openssl-wrapper": "^0.3.4",
+    "pem": "^1.8.3",
     "rdfstore": "^0.9.17",
     "request": "^2.74.0",
     "shortid": "^2.2.6",

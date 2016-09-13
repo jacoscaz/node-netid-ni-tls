@@ -1,6 +1,6 @@
 
-Express-WebID-Auth
-==================
+WebIDentity
+===========
 
 Express middleware for fingerprint-based WebID authentication.
 
@@ -24,7 +24,7 @@ RDFa example
 Todo
 ----
 
-1. Complete error handling of cases
-2. Custom dictionary? Extend `cert`?
-3. Better README
+1. Custom dictionary? Extend `cert`?
+2. Better README
+3. Automated tests
 4. Publish on NPM

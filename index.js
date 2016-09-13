@@ -4,37 +4,49 @@
 var AUTH = require('./lib/auth');
 var CACHE = require('./lib/cache');
 var STORE = require('./lib/store');
+var ERRORS = require('./lib/errors');
+
+var Promise = require('./lib/promise');
 
 var debug = require('debug')('express:webid:mware');
 
-function factory () {
+function createAuthenticator() {
 
-  var store = null;
+  var authenticator = {
+    authenticate: function(clientCertificate) {
+      if (!this.store) {
+        return Promise.reject(new ERRORS.StoreError('Store not ready yet.'));
+      }
+      return AUTH.authenticate(clientCertificate, this.store, this.cache);
+    },
+    store: null,
+    cache: CACHE.create()
+  };
 
   STORE.create()
-    .then(function (_store) {
-      store = _store;
+    .then(function (store) {
+      authenticator.store = store;
     })
     .catch(function (err) {
       throw err;
     });
 
-  var cache = CACHE.create();
+  return authenticator;
+
+}
+
+function createMiddleware() {
+
+  var authenticator = createAuthenticator();
 
   return function (req, res, next) {
 
     debug('Begin.');
 
-    if (!store) {
-      debug('Store not yet ready.');
-      next();
-      return;
-    }
-
     var clientCertificate = req.connection.encrypted
       && req.connection.getPeerCertificate();
 
-    AUTH.authenticate(clientCertificate, store, cache)
+    authenticator.authenticate(clientCertificate)
       .then(function (auth) {
         req.auth = auth;
         debug('End.');
@@ -45,4 +57,5 @@ function factory () {
   };
 }
 
-module.exports = factory;
+module.exports = createMiddleware;
+module.exports.createAuthenticator = createAuthenticator;

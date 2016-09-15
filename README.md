@@ -20,6 +20,15 @@ RDFa example
 The certificate's URI follows the [Named Information](https://tools.ietf.org/html/rfc6920)
 URI format.
 
+Use the following command to generate the required base64-encoded SHA256
+certificate fingerprint:
+
+    $ openssl x509 -in example.crt -inform pem -outform der | openssl dgst -sha256 -binary | openssl base64
+
+Remove all padding `=` characters at the end of the fingerprint, as per 
+the Named Information RFC. Thanks to the [public-webid](https://lists.w3.org/Archives/Public/public-webid/)
+for the wonderful idea.
+
 Todo
 ----
 

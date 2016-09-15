@@ -11,7 +11,12 @@ var PORT = 8080;
 
 var app = express();
 
-app.use('/', auth());
+var middleware = auth();
+app.use('/', middleware);
+
+middleware.authenticator.on('authenticated', function(data) {
+  console.log(data);
+});
 
 app.use('/', function(req, res, next) {
   res.set('Content-Type', 'text/plain');

@@ -27,7 +27,7 @@ certificate fingerprint:
 
 Remove all padding `=` characters at the end of the fingerprint, as per 
 the Named Information RFC. Thanks to the [public-webid](https://lists.w3.org/Archives/Public/public-webid/)
-for the wonderful idea.
+list for the wonderful idea.
 
 Todo
 ----

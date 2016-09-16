@@ -15,7 +15,7 @@ var middleware = auth();
 app.use('/', middleware);
 
 middleware.authenticator.on('authenticated', function(data) {
-  console.log(data);
+  console.log('AUTHENTICATED! %s %s', data.webid, data.clientCert.uri);
 });
 
 app.use('/', function(req, res, next) {

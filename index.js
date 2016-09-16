@@ -22,6 +22,7 @@ function createMiddleware() {
         next();
       })
       .catch(next);
+
   }
 
   middleware.authenticator = authenticator;
@@ -29,5 +30,5 @@ function createMiddleware() {
   return middleware;
 }
 
-module.exports = createMiddleware;
+module.exports.createMiddleware = createMiddleware;
 module.exports.createAuthenticator = Authenticator;

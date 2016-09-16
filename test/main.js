@@ -1,17 +1,17 @@
 
 var fs = require('fs');
-var auth = require('../');
 var path = require('path');
 var http = require('http');
 var https = require('https');
 var express = require('express');
+var webidentity = require('../');
 
 var ADDR = '0.0.0.0';
 var PORT = 8080;
 
 var app = express();
 
-var middleware = auth();
+var middleware = webidentity.createMiddleware();
 app.use('/', middleware);
 
 middleware.authenticator.on('authenticated', function(data) {

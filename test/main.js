@@ -12,18 +12,11 @@ var authenticator = netid({
   }
 });
 
-console.log(authenticator._opts);
-
-
 var ADDR = '0.0.0.0';
 var PORT = 8080;
 
 var app = express();
 app.use('/', authenticator.middleware());
-
-authenticator.on('authenticated', function(data) {
-  console.log('AUTHENTICATED! %s %s', data.netID, data.clientCert.uri);
-});
 
 app.use('/', function(req, res, next) {
   res.set('Content-Type', 'text/plain');

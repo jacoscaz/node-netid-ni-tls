@@ -4,6 +4,7 @@ var path = require('path');
 var http = require('http');
 var netid = require('../');
 var https = require('https');
+var Promise = require('../lib/promise');
 var express = require('express');
 
 var authenticator = netid({

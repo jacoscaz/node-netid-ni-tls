@@ -45,6 +45,8 @@ Authenticator.createAuthenticator = function (opts) {
   return new Authenticator(opts);
 };
 
+Authenticator.FailedAuthenticationError = errors.FailedAuthenticationError;
+
 Authenticator.prototype._retrieve = function (netId, clientCertInfo) {
   return Promise.resolve(null);
 };
@@ -57,7 +59,7 @@ Authenticator.prototype._authenticate = function (netId, clientCertInfo) {
   var rdfStore = authenticator._rdfStore;
 
   if (!rdfStore) {
-    throw new errors.InternalError('RDF store not yet ready.');
+    throw new errors.InternalAuthenticationError('RDF store not yet ready.');
   }
 
   return http.getCertInfoAndRdfData(netId, requestOpts)

@@ -9,6 +9,7 @@ var http = require('./lib/http');
 var util = require('util');
 var debug = require('debug')('netid-ni-tls:auth');
 var errors = require('./lib/errors');
+var events = require('events');
 var Promise = require('./lib/promise');
 
 function Authenticator(opts) {
@@ -18,6 +19,8 @@ function Authenticator(opts) {
   if (!(authenticator instanceof Authenticator)) {
     return new Authenticator(opts);
   }
+
+  events.EventEmitter.call(authenticator);
 
   authenticator._opts = _.defaultsDeep({}, opts, {
     request: {
@@ -35,6 +38,8 @@ function Authenticator(opts) {
 }
 
 module.exports = Authenticator;
+
+util.inherits(Authenticator, events.EventEmitter);
 
 Authenticator.createAuthenticator = function (opts) {
   return new Authenticator(opts);
@@ -79,12 +84,15 @@ Authenticator.prototype._authenticate = function (netId, clientCertInfo) {
 
 Authenticator.prototype.authenticate = function (clientCertInfo) {
 
-  var netId = cert.extractNetId(clientCertInfo);
   var authenticator = this;
+
+  var netId = _.isObject(clientCertInfo)
+    && clientCertInfo.raw
+    && cert.extractNetId(clientCertInfo);
 
   return (netId
       ? authenticator._retrieve(netId, clientCertInfo)
-      : Promise.reject(new errors.FailedAuthenticationError('Missing NetID in client certificate.'))
+      : Promise.reject(new errors.FailedAuthenticationError('Missing NetID or invalid client certificate.'))
   )
 
     .then(function (auth) {
@@ -99,6 +107,10 @@ Authenticator.prototype.authenticate = function (clientCertInfo) {
         error: err,
         createdAt: Date.now()
       };
+    })
+
+    .tap(function (auth) {
+      setImmediate(authenticator.emit.bind(authenticator, 'authentication', auth));
     });
 
 };

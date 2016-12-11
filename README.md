@@ -88,7 +88,7 @@ This method returns an authentication object with the following properties:
 This method returns an express-compatible authentication middleware which stores the
 resulting authentication object in `req.auth` .
  
-### `Authenticator.prototype._retrieve(netId, clientCertInfo)`
+### Caching
 
 On its own, an authenticator goes through the authentication process every time the 
 `authenticate(clientCertInfo)` method is called (every request if using the middleware).
@@ -96,9 +96,25 @@ On its own, an authenticator goes through the authentication process every time 
 However, implementors can opt to override the `authenticator._retrieve(netId, clientCertInfo)`
 to return a previously cached authentication object to be used by the authenticator.
 
+Every authenticator also emits an `authentication` event on every authentication, 
+regardless of success or caching. This event can be used in conjunction with the 
+ `_retrieve()` method to implement caching.
+
     authenticator._retrieve = function (netId, clientCertInfo) {
-        return Promise.resolve(cachedAuthenticationObject);
+        return getCachedAuthenticationObject(netId, clientCertInfo)
+            .then(function (auth) {
+                return (auth.cachedAt > Date.now() - 1000 * 10)
+                    ? auth
+                    : null;
+            });
     };
+    
+    authenticator.on('authentication', function (auth) {
+          if (auth.success && !auth.cachedAt) {
+            auth.cachedAt = Date.now();
+            cacheAuthenticationObject(auth);
+          }
+    });
     
 Tests
 -----
@@ -107,6 +123,9 @@ A test server that echoes the authentication object to the client can be fired u
  using the following:
 
     $ node test/server.js
+    
+The test server caches authentications for 10 seconds based on the client certificate's 
+fingerprint.
 
 License
 -------

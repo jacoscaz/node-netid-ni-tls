@@ -7,11 +7,39 @@ var https = require('https');
 var Promise = require('../lib/promise');
 var express = require('express');
 
+//
+// Authenticator
+//
+
 var authenticator = netid({
   request: {
     rejectUnauthorized: false
   }
 });
+
+//
+// Caching
+//
+
+var cache = {};
+
+authenticator._retrieve = function (netId, clientCertInfo) {
+  var cachedAuth = cache[clientCertInfo.fingerprint];
+  return (cachedAuth && cachedAuth.cachedAt > Date.now() - 1000 * 10)
+    ? Promise.resolve(cachedAuth)
+    : Promise.resolve();
+};
+
+authenticator.on('authentication', function (auth) {
+  if (auth.success && !auth.cachedAt) {
+    auth.cachedAt = Date.now();
+    cache[auth.clientCertInfo.fingerprint] = auth;
+  }
+});
+
+//
+// Express app
+//
 
 var ADDR = '0.0.0.0';
 var PORT = 8080;

@@ -17,6 +17,7 @@ var ADDR = '0.0.0.0';
 var PORT = 8080;
 
 var app = express();
+
 app.use('/', authenticator.getMiddleware());
 
 app.use('/', function(req, res, next) {

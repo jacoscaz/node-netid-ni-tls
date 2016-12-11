@@ -3,13 +3,13 @@
 
 var _ = require('lodash');
 var ni = require('ni-uri');
-var rdf = require('./rdf');
-var cert = require('./cert');
-var http = require('./http');
+var rdf = require('./lib/rdf');
+var cert = require('./lib/cert');
+var http = require('./lib/http');
 var util = require('util');
 var debug = require('debug')('netid-ni-tls:auth');
-var errors = require('./errors');
-var Promise = require('./promise');
+var errors = require('./lib/errors');
+var Promise = require('./lib/promise');
 
 function Authenticator(opts) {
 
@@ -36,6 +36,10 @@ function Authenticator(opts) {
 
 module.exports = Authenticator;
 
+Authenticator.createAuthenticator = function (opts) {
+  return new Authenticator(opts);
+};
+
 Authenticator.prototype._retrieve = function (netId, clientCertInfo) {
   return Promise.resolve(null);
 };
@@ -47,16 +51,20 @@ Authenticator.prototype._authenticate = function (netId, clientCertInfo) {
   var requestOpts = authenticator._opts.request;
   var rdfStore = authenticator._rdfStore;
 
+  if (!rdfStore) {
+    throw new errors.InternalError('RDF store not yet ready.');
+  }
+
   return http.getCertInfoAndRdfData(netId, requestOpts)
 
     .spread(function (serverCertInfo, rdfData, rdfFormat) {
+
       return rdf.queryRdfData(rdfStore, rdfData, rdfFormat, netId)
 
         .then(function (niUris) {
-          return cert.findMatchingNiUri(clientCertInfo, niUris);
-        })
-
-        .then(function (matchingNiUri) {
+          if (!cert.findMatchingNiUri(clientCertInfo, niUris)) {
+            throw new errors.FailedAuthenticationError('No matching certificate found in NetID data for client certificate.');
+          }
           return {
             success: true,
             netId: netId,
@@ -75,8 +83,8 @@ Authenticator.prototype.authenticate = function (clientCertInfo) {
   var authenticator = this;
 
   return (netId
-    ? authenticator._retrieve(netId, clientCertInfo)
-    : Promise.reject(new errors.FailedAuthenticationError('Missing NetID in client certificate.'))
+      ? authenticator._retrieve(netId, clientCertInfo)
+      : Promise.reject(new errors.FailedAuthenticationError('Missing NetID in client certificate.'))
   )
 
     .then(function (auth) {

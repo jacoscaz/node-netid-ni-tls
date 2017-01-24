@@ -38,7 +38,7 @@ following formats: `application/ld+json`, `text/turtle`, `text/n3`,
 The RDF document should contain triples equivalent to those shown in the following 
 RDFa snippet:
 
-    <div about="ni:///sha-256;Mub5jcxUlUz6SG0oWKmHtIYGNgATBmPdRdlXiKxRBWw" typeof="cert:X509Certificate" prefix="cert: http://www.w3.org/ns/auth/cert#">
+    <div about="ni:///sha-256;Mub5jcxUlUz6SG0oWKmHtIYGNgATBmPdRdlXiKxRBWw" typeof="cert:X509Certificate" prefix="cert:http://www.w3.org/ns/auth/cert#">
         <div rel="cert:identity" href="https://example.com/me"></div>
     </div>
 

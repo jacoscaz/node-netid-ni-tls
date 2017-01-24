@@ -1,20 +1,18 @@
 
 'use strict';
 
-var _ = require('lodash');
-var ni = require('ni-uri');
-var rdf = require('./lib/rdf');
-var cert = require('./lib/cert');
-var http = require('./lib/http');
-var util = require('util');
-var debug = require('debug')('netid-ni-tls:auth');
-var errors = require('./lib/errors');
-var events = require('events');
-var Promise = require('./lib/promise');
+const _ = require('lodash');
+const rdf = require('./lib/rdf');
+const cert = require('./lib/cert');
+const http = require('./lib/http');
+const util = require('util');
+const debug = require('debug')('netid-ni-tls:auth');
+const errors = require('./lib/errors');
+const events = require('events');
+const Promise = require('./lib/promise');
 
 function Authenticator(opts) {
-
-  var authenticator = this;
+  const authenticator = this;
 
   if (!(authenticator instanceof Authenticator)) {
     return new Authenticator(opts);
@@ -24,17 +22,11 @@ function Authenticator(opts) {
 
   authenticator._opts = _.defaultsDeep({}, opts, {
     request: {
-      rejectUnauthorized: true
-    }
+      rejectUnauthorized: true,
+    },
   });
 
   debug('Options', authenticator._opts);
-
-  rdf.createRdfStore().then(function (rdfStore) {
-    authenticator._rdfStore = rdfStore;
-    debug('Store created. Authenticator ready.');
-  });
-
 }
 
 module.exports = Authenticator;
@@ -47,48 +39,43 @@ Authenticator.createAuthenticator = function (opts) {
 
 Authenticator.FailedAuthenticationError = errors.FailedAuthenticationError;
 
-Authenticator.prototype._retrieve = function (netId, clientCertInfo) {
-  return Promise.resolve(null);
+/**
+ * @param netId
+ * @param clientCertInfo
+ * @returns {Promise.<T>}
+ * @private
+ */
+Authenticator.prototype._retrieve = function () {
+  return Promise.resolve();
 };
 
 Authenticator.prototype._authenticate = function (netId, clientCertInfo) {
+  const authenticator = this;
 
-  var authenticator = this;
-
-  var requestOpts = authenticator._opts.request;
-  var rdfStore = authenticator._rdfStore;
-
-  if (!rdfStore) {
-    throw new errors.InternalAuthenticationError('RDF store not yet ready.');
-  }
+  const requestOpts = authenticator._opts.request;
 
   return http.getCertInfoAndRdfData(netId, requestOpts)
 
-    .spread(function (serverCertInfo, rdfData, rdfFormat) {
+    .spread((serverCertInfo, rdfData, rdfFormat) => rdf.queryRdfData(rdfData, rdfFormat, netId)
 
-      return rdf.queryRdfData(rdfStore, rdfData, rdfFormat, netId)
-
-        .then(function (niUris) {
+        .then((niUris) => {
           if (!cert.findMatchingNiUri(clientCertInfo, niUris)) {
             throw new errors.FailedAuthenticationError('No matching certificate found in NetID data for client certificate.');
           }
           return {
             success: true,
-            netId: netId,
-            clientCertInfo: clientCertInfo,
-            serverCertInfo: serverCertInfo,
-            createdAt: Date.now()
+            netId,
+            clientCertInfo,
+            serverCertInfo,
+            createdAt: Date.now(),
           };
-        });
-
-    });
+        }));
 };
 
 Authenticator.prototype.authenticate = function (clientCertInfo) {
+  const authenticator = this;
 
-  var authenticator = this;
-
-  var netId = _.isObject(clientCertInfo)
+  const netId = _.isObject(clientCertInfo)
     && clientCertInfo.raw
     && cert.extractNetId(clientCertInfo);
 
@@ -97,24 +84,19 @@ Authenticator.prototype.authenticate = function (clientCertInfo) {
       : Promise.reject(new errors.FailedAuthenticationError('Missing NetID or invalid client certificate.'))
   )
 
-    .then(function (auth) {
-      return auth || authenticator._authenticate(netId, clientCertInfo);
-    })
+    .then(auth => auth || authenticator._authenticate(netId, clientCertInfo))
 
-    .catch(errors.FailedAuthenticationError, function (err) {
-      return {
-        success: false,
-        netId: netId,
-        clientCert: clientCertInfo,
-        error: err,
-        createdAt: Date.now()
-      };
-    })
+    .catch(errors.FailedAuthenticationError, err => ({
+      success: false,
+      netId,
+      clientCert: clientCertInfo,
+      error: err,
+      createdAt: Date.now(),
+    }))
 
-    .tap(function (auth) {
+    .tap((auth) => {
       setImmediate(authenticator.emit.bind(authenticator, 'authentication', auth));
     });
-
 };
 
 /**
@@ -123,26 +105,24 @@ Authenticator.prototype.authenticate = function (clientCertInfo) {
  *
  * @returns {middleware}
  */
+/* eslint no-param-reassign: off */
 Authenticator.prototype.getMiddleware = function () {
+  const authenticator = this;
 
-  var authenticator = this;
-
-  var middleware = function (req, res, next) {
-
-    var clientCertInfo = req.connection.encrypted
+  const middleware = function (req, res, next) {
+    const clientCertInfo = req.connection.encrypted
       && req.connection.getPeerCertificate();
 
     authenticator.authenticate(clientCertInfo)
 
-      .then(function (auth) {
+      .then((auth) => {
         req.auth = auth;
         next();
       })
 
-      .catch(function (err) {
+      .catch((err) => {
         next(err);
       });
-
   };
 
   middleware.authenticator = authenticator;

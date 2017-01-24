@@ -1,36 +1,38 @@
 
-var fs = require('fs');
-var path = require('path');
-var http = require('http');
-var netid = require('../');
-var https = require('https');
-var Promise = require('../lib/promise');
-var express = require('express');
+'use strict';
+
+const fs = require('fs');
+const path = require('path');
+const netid = require('../');
+const https = require('https');
+const Promise = require('../lib/promise');
+const express = require('express');
 
 //
 // Authenticator
 //
 
-var authenticator = netid({
+const authenticator = netid({
   request: {
-    rejectUnauthorized: false
-  }
+    rejectUnauthorized: false,
+  },
 });
 
 //
 // Caching
 //
 
-var cache = {};
+const cache = {};
 
 authenticator._retrieve = function (netId, clientCertInfo) {
-  var cachedAuth = cache[clientCertInfo.fingerprint];
-  return (cachedAuth && cachedAuth.cachedAt > Date.now() - 1000 * 10)
+  const cachedAuth = cache[clientCertInfo.fingerprint];
+  return (cachedAuth && cachedAuth.cachedAt > (Date.now() - (1000 * 10)))
     ? Promise.resolve(cachedAuth)
     : Promise.resolve();
 };
 
-authenticator.on('authentication', function (auth) {
+/* eslint no-param-reassign: off */
+authenticator.on('authentication', (auth) => {
   if (auth.success && !auth.cachedAt) {
     auth.cachedAt = Date.now();
     cache[auth.clientCertInfo.fingerprint] = auth;
@@ -41,27 +43,27 @@ authenticator.on('authentication', function (auth) {
 // Express app
 //
 
-var ADDR = '0.0.0.0';
-var PORT = 8080;
+const ADDR = '0.0.0.0';
+const PORT = 8080;
 
-var app = express();
+const app = express();
 
 app.use('/', authenticator.getMiddleware());
 
-app.use('/', function(req, res, next) {
+app.use('/', (req, res) => {
   res.set('Content-Type', 'text/plain');
   res.send(JSON.stringify(req.auth, null, 4));
 });
 
-var opts = {
+const opts = {
   requestCert: true,
   rejectUnauthorized: false,
   key: fs.readFileSync(path.join(__dirname, 'cert', 'example.com.key')),
-  cert: fs.readFileSync(path.join(__dirname, 'cert', 'example.com.crt'))
+  cert: fs.readFileSync(path.join(__dirname, 'cert', 'example.com.crt')),
 };
 
-var server = https.createServer(opts, app);
+const server = https.createServer(opts, app);
 
-server.listen(PORT, ADDR, function() {
+server.listen(PORT, ADDR, () => {
   console.log('Listening on %s:%s!', ADDR, PORT);
 });

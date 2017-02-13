@@ -56,20 +56,24 @@ Authenticator.prototype._authenticate = function (netId, clientCertInfo) {
 
   return http.getCertInfoAndRdfData(netId, requestOpts)
 
-    .spread((serverCertInfo, rdfData, rdfFormat) => rdf.queryRdfData(rdfData, rdfFormat, netId)
+    .spread((serverCertInfo, rdfData, rdfFormat) => {
+    console.log('DATA', rdfData);
+    console.log('FORMAT', rdfFormat);
+      return [serverCertInfo, rdf.queryRdfData(rdfData, rdfFormat, netId)];
+    })
 
-        .then((niUris) => {
-          if (!cert.findMatchingNiUri(clientCertInfo, niUris)) {
-            throw new errors.FailedAuthenticationError('No matching certificate found in NetID data for client certificate.');
-          }
-          return {
-            success: true,
-            netId,
-            clientCertInfo,
-            serverCertInfo,
-            createdAt: Date.now(),
-          };
-        }));
+    .spread((serverCertInfo, niUris) => {
+      if (!cert.findMatchingNiUri(clientCertInfo, niUris)) {
+        throw new errors.FailedAuthenticationError('No matching certificate found in NetID data for client certificate.');
+      }
+      return {
+        success: true,
+        netId,
+        clientCertInfo,
+        serverCertInfo,
+        createdAt: Date.now(),
+      };
+    });
 };
 
 Authenticator.prototype.authenticate = function (clientCertInfo) {

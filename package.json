@@ -1,8 +1,10 @@
 {
   "name": "netid-ni-tls",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "",
   "main": "authenticator.js",
+  "homepage": "https://github.com/jacoscaz/node-netid-ni-tls",
+  "bugs": "https://github.com/jacoscaz/node-netid-ni-tls/issues",
   "scripts": {
     "test": "mocha"
   },
